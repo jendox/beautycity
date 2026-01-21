@@ -16,12 +16,14 @@ Including another URLconf
 """
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.shortcuts import render
 from django.urls import path
 
 from config import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', render, kwargs={'template_name': 'index.html'}, name='index'),
 ]
 
 if settings.DEBUG:
