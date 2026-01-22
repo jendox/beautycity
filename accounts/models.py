@@ -24,7 +24,7 @@ class CustomUser(AbstractUser):
 
     @property
     def display_name(self):
-        full_name = f"{(self.first_name or '').strip()} {(self.last_name or '').split()}".strip()
+        full_name = f"{(self.first_name or '').strip()} {(self.last_name or '').strip()}".strip()
         if full_name:
             return full_name
         if self.username:

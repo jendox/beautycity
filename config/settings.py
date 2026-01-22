@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'accounts.apps.AccountsConfig',
+    'salons.apps.SalonsConfig',
+    'pages.apps.PagesConfig',
 ]
 
 REST_FRAMEWORK = {
