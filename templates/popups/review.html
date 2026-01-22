@@ -1,16 +1,20 @@
-<div class="reviewPopup popup">
-    <div class="popup__title reviewPopup__title">Отзыв</div>
-    <form action="#" class="reviewPopup__form">
-        <input type="text" name="fname" class="paymentPopup__form_input popup__input" placeholder="Введите имя" required>
-        <div class="contacts__form_inputBlock">
-            <input type="text" name="tel" class="contacts__form_iunput" placeholder="+7(999)999--99-99" required="">
-        </div>
-        <input type="text" name="dateVis" class="paymentPopup__form_input popup__input" placeholder="Дата посещения" required>
-        <textarea name="popupTextarea" class="reviewPopup__form_textarea" placeholder="Текст отзыва"></textarea>
-        <div class="contacts__form_checkboxBlock fic">
-            <input type="checkbox" class="contacts__form_checkbox" checked>
-            <span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
-        </div>
-        <button class="tipsPopup__btn popup__btn">Оставить отзыв</button>
-    </form>
+{% load static %}
+<div style="display: none;">
+    <div class="box-modal reviewPopup popup" id="reviewModal">
+        <div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
+        <div class="popup__title reviewPopup__title">Отзыв</div>
+        <form action="#" class="reviewPopup__form">
+            <input type="text" name="fname" class="paymentPopup__form_input popup__input" placeholder="Введите имя" required="">
+            <div class="contacts__form_inputBlock">
+                <input type="text" name="tel" class="contacts__form_iunput" placeholder="+7(999)999--99-99" required="">
+            </div>
+            <input type="text" name="dateVis" class="paymentPopup__form_input popup__input" placeholder="Дата посещения" required="">
+            <textarea name="popupTextarea" class="reviewPopup__form_textarea" placeholder="Текст отзыва"></textarea>
+            <div class="contacts__form_checkboxBlock fic">
+                <input type="checkbox" class="contacts__form_checkbox" checked="">
+                <span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+            </div>
+            <button class="tipsPopup__btn popup__btn">Оставить отзыв</button>
+        </form>
+    </div>
 </div>

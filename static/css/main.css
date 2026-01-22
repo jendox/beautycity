@@ -1859,6 +1859,10 @@ color: #323232;
 .authPopup__text {
 	margin-bottom: 12px;
 }
+.authPopup__error {
+	margin-bottom: 12px;
+	color: red;
+}
 .authPopup__form {
 	display: flex;
     flex-direction: column;
@@ -1887,6 +1891,10 @@ height: 53px;
 }
 .confirmPopup__text {
 	margin-bottom: 26px;
+}
+.confirmPopup__error {
+	margin-bottom: 12px;
+	color: red;
 }
 .confirmPopup__sms {
 	font-weight: 400;

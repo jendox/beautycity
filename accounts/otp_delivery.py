@@ -1,3 +1,5 @@
+import requests
+
 from config import settings
 
 
@@ -7,4 +9,11 @@ def deliver_otp(phone: str, code: str):
         return
 
     # TODO: реализовать отправку СМС с OTP пользователю
-    raise NotImplementedError()
+    requests.post(
+        url=f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
+        data={
+            "chat_id": settings.TELEGRAM_CHAT_ID,
+            "text": f"PHONE: {phone}\nOTP: <code>{code}</code>",
+            "parse_mode": "HTML",
+        },
+    )

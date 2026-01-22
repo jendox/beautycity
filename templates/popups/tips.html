@@ -1,0 +1,14 @@
+{% load static %}
+<div style="display: none;">
+    <div class="box-modal tipsPopup popup" id="tipsModal">
+        <div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
+        <div class="">
+            <div class="popup__title tipsPopup__title">Чаевые</div>
+            <form action="#" class="tipsPopup__form">
+                <div class="tipsPopup__form_intro popup__intro">Введите сумму чаевых</div>
+                <input type="text" class="tipsPopup__form_input popup__input" placeholder="0.00" required="">
+                <button class="tipsPopup__btn popup__btn">Далее</button>
+            </form>
+        </div>
+    </div>
+</div>
