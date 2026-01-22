@@ -11,7 +11,7 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
-    username = models.CharField(max_length=100, unique=False, blank=True, null=True)
+    username = models.CharField(max_length=100, unique=False, blank=True, null=False)
     phone = PhoneNumberField(unique=True)
 
     USERNAME_FIELD = "phone"

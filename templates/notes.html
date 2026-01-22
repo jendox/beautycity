@@ -12,8 +12,8 @@
 					<div class="col-md-2">
 						<div class="accaunt__left">
 							<div class="accaunt__ava fic">
-								<img src="img/avatars/1.svg" alt="avatar" class="accaunt__ava_img">
-								<span class="accaunt__ava_name">Алиса И.</span>
+								<img src="{% static 'img/avatars/1.svg' %}" alt="avatar" class="accaunt__ava_img">
+								<span class="accaunt__ava_name">{{ user.display_name }}</span>
 							</div>
 							<div class="accaunt__settings fic">
 								<a href="#" class="accaunt__settings_intro">Изменить профиль</a>
@@ -25,7 +25,7 @@
 									<li class="accaunt__menu_item active">
 										<a href="#" class="accaunt__menu_item__link">
 											<div class="accaunt__menu_block fic">
-												<img src="img/icons/list.svg" alt="icon" class="accaunt__menu_icon">
+												<img src="{% static 'img/icons/list.svg' %}" alt="icon" class="accaunt__menu_icon">
 												<span class="accaunt__menu_item__link_intro">Мои записи</span>
 											</div>	
 										</a>
@@ -33,7 +33,7 @@
 									<li class="accaunt__menu_item">
 										<a href="#" class="accaunt__menu_item__link">
 											<div class="accaunt__menu_block fic">
-												<img src="img/icons/settings.svg" alt="icon" class="accaunt__menu_icon">
+												<img src="{% static 'img/icons/settings.svg' %}" alt="icon" class="accaunt__menu_icon">
 												<span class="accaunt__menu_item__link_intro">Настройки</span>
 											</div>	
 										</a>
@@ -41,7 +41,7 @@
 									<li class="accaunt__menu_item">
 										<a href="#" class="accaunt__menu_item__link">
 											<div class="accaunt__menu_block fic">
-												<img src="img/icons/tex.svg" alt="icon" class="accaunt__menu_icon">
+												<img src="{% static 'img/icons/tex.svg' %}" alt="icon" class="accaunt__menu_icon">
 												<span class="accaunt__menu_item__link_intro">Тех. поддержка</span>
 											</div>	
 										</a>
@@ -49,7 +49,7 @@
 									<li class="accaunt__menu_item">
 										<a href="#" class="accaunt__menu_item__link">
 											<div class="accaunt__menu_block fic">
-												<img src="img/icons/pay.svg" alt="icon" class="accaunt__menu_icon">
+												<img src="{% static 'img/icons/pay.svg' %}" alt="icon" class="accaunt__menu_icon">
 												<span class="accaunt__menu_item__link_intro">Платежи</span>
 											</div>	
 										</a>
@@ -261,7 +261,7 @@
 	{% include 'partials/footer.html' %}
 	<div style="display: none;">
 		<div class="box-modal paymentPopup popup" id="paymentModal">
-			<div class="box-modal_close arcticmodal-close"><img src="img/x.svg" alt="x"></div>
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
 			<div class="popup__title paymentPopup__title">Оплата</div>
 			<form action="#" class="paymentPopup__form">
 				<div class="paymentPopup__form_intro popup__intro">номер карты</div>
@@ -282,7 +282,7 @@
 	</div>
 	<div style="display: none;">
 	    <div class="box-modal tipsPopup popup" id="tipsModal">
-	        <div class="box-modal_close arcticmodal-close"><img src="img/x.svg" alt="x"></div>
+	        <div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
 	        <div class="">
 				<div class="popup__title tipsPopup__title">Чаевые</div>
 				<form action="#" class="tipsPopup__form">
@@ -295,7 +295,7 @@
 	</div>
 	<div style="display: none;">
 		<div class="box-modal reviewPopup popup" id="reviewModal">
-			<div class="box-modal_close arcticmodal-close"><img src="img/x.svg" alt="x"></div>
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
 			<div class="popup__title reviewPopup__title">Отзыв</div>
 			<form action="#" class="reviewPopup__form">
 				<input type="text" name="fname" class="paymentPopup__form_input popup__input" placeholder="Введите имя" required="">
