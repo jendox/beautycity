@@ -7,6 +7,7 @@ from config import settings
 class Salon(models.Model):
     name = models.CharField('Название', max_length=100)
     address = models.CharField('Адрес', max_length=255, blank=True)
+    image = models.FileField(upload_to='salons/', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Салон'
@@ -43,6 +44,7 @@ class Service(models.Model):
         related_name='services',
     )
     title = models.CharField(max_length=255)
+    image = models.FileField(upload_to='services/', blank=True, null=True)
     duration_minutes = models.PositiveIntegerField(default=60)
     price = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)

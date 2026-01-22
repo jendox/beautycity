@@ -1,6 +1,7 @@
-from django.shortcuts import render
 from django.urls import path
 
+from . import views
+
 urlpatterns = [
-    path('', render, kwargs={'template_name': 'index.html'}, name='index'),
+    path('', views.IndexView.as_view(), name='index'),
 ]

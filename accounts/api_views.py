@@ -1,9 +1,10 @@
 import random
 from datetime import timedelta
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 from rest_framework import status
@@ -15,10 +16,21 @@ from accounts.models import PhoneOTP
 from accounts.otp_delivery import deliver_otp
 from accounts.serializers import RequestCodeSerializer, ValidateCodeSerializer
 from config import settings
+from salons.models import SalonAdmin
+
+User = get_user_model()
 
 
 def _generate_code() -> str:
     return f"{random.randint(0, 9999):04d}"
+
+
+def _get_dashboard_url(user: User) -> str:
+    if user.is_superuser:
+        return "/admin"
+    if SalonAdmin.objects.filter(user=user, is_active=True).exists():
+        return reverse("salon_admin")
+    return reverse("client_cabinet")
 
 
 @require_GET
@@ -84,6 +96,7 @@ class VerifyCodeAPIView(APIView):
         return Response(
             data={
                 "ok": True,
+                "next_url": _get_dashboard_url(user),
                 "user": {
                     "id": user.id,
                     "phone": str(user.phone),

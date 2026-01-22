@@ -43,11 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'rest_framework',
     'accounts.apps.AccountsConfig',
     'salons.apps.SalonsConfig',
     'pages.apps.PagesConfig',
+    'client.apps.ClientConfig',
+    'salon_admin.apps.SalonAdminConfig',
+    'appointments.apps.AppointmentsConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -89,6 +91,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+LOGIN_URL = '/'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

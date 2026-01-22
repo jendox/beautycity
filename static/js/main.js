@@ -546,10 +546,14 @@ $(document).ready(function() {
 			if (code.length === 4) {
 				try {
 					await ensureCsrf();
-					await apiPost('/api/auth/verify-code/', { phone: currentPhone, code });
+					const data = await apiPost('/api/auth/verify-code/', { phone: currentPhone, code });
 
 					$.arcticmodal('close');
-					window.location.reload();
+					if (data.next_url) {
+						window.location.href = data.next_url;
+					} else {
+						window.location.reload();
+					}
 				} catch (err) {
 					showBlockError($('#confirmError'), mapAuthError(err));
 					clearAndFocus();
@@ -603,5 +607,19 @@ $(document).ready(function() {
 			alert('Не удалось выйти. Попробуйте ещё раз.');
 		}
 	});
+
+	// ===== Auto-open auth modal if redirected with ?next=... =====
+	(function () {
+		const url = new URL(window.location.href);
+		const next = url.searchParams.get('next');
+		if (!next) return;
+
+		url.searchParams.delete('next');
+		window.history.replaceState({}, '', url.toString());
+
+		if (window.jQuery && $('#authModal').length) {
+			$('#authModal').arcticmodal();
+		}
+	})();
 
 })

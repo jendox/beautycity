@@ -1,0 +1,41 @@
+{% load static %}
+<section id="salons">
+    <div class="container">
+        <div class="salons pb100">
+            <div class="salons__slider_arrows fic mob">
+                <div class="title">Наши салоны</div>
+                <div class="slider__arrows fic">
+                    <div class="slider__arrows_arrow leftArrow">
+                        <i class="arrowRight"></i>
+                    </div>
+                    <div class="slider__arrows_arrow rightArrow">
+                        <i class="arrowLleft"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="title dec">Наши салоны</div>
+            <div class="row salonsSlider">
+                {% for salon in salons %}
+                <div class="col-6 col-md-4 col-lg-4 col-xl-3">
+                    <div class="salons__block">
+                        <img src="{{ salon.image.url }}" alt="salon" class="salons__block_img">
+                        <div class="salons__elems">
+                            <div class="block__title salons__elems_title">{{ salon.name }}</div>
+                            <div class="salons__elems_light">{{ salon.address }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="col-6 col-md-4 col-lg-4 col-xl-3 decVis">
+                    <div class="salons__block">
+                        <img src="{{ salons.0.image.url }}" alt="salon" class="salons__block_img">
+                        <div class="salons__elems">
+                            <div class="salons__elems_title">{{ salons.0.name }}</div>
+                            <div class="salons__elems_light">{{ salons.0.address }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

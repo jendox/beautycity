@@ -1,0 +1,25 @@
+{% load static %}
+<section id="banner">
+    <div class="container">
+        <div class="banner">
+            <div class="row">
+                <div class="col-md-10 col-lg-7 col-xl-6">
+                    <div class="banner__block">
+                        <h1 class="banner__title">Запишись на первую услугу со <span class="yellow banner__title_discount">скидкой 50%</span></h1>
+                        <div class="banner__elems">
+                            <img src="{% static 'img/persons.svg' %}" alt="persons" class="banner__elems_img">
+                            <p class="banner__elems_intro">
+                                <span class="yellow banner__elems_over">Более 1 000</span>
+                                довольных клиентов
+                            </p>
+                        </div>
+                        <a href="service.html"><button class="banner__btn">Записаться</button></a>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-5">
+                    <img src="{% static 'img/bannerImg.svg' %}" alt="bannerImg" class="banner__img">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

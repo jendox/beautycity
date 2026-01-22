@@ -3,87 +3,9 @@
 {% block content %}
 	{% include 'partials/mob_menu.html' %}
 	{% include 'partials/header.html' %}
-	<section id="banner">
-		<div class="container">
-			<div class="banner">
-				<div class="row">
-					<div class="col-md-10 col-lg-7 col-xl-6">
-						<div class="banner__block">
-							<h1 class="banner__title">Запишись на первую услугу со <span class="yellow banner__title_discount">скидкой 50%</span></h1>
-							<div class="banner__elems">
-								<img src="{% static 'img/persons.svg' %}" alt="persons" class="banner__elems_img">
-								<p class="banner__elems_intro">
-									<span class="yellow banner__elems_over">Более 1 000</span>
-									довольных клиентов
-								</p>
-							</div>
-							<a href="service.html"><button class="banner__btn">Записаться</button></a>
-						</div>
-					</div>
-					<div class="col-md-12 col-lg-5">
-						<img src="{% static 'img/bannerImg.svg' %}" alt="bannerImg" class="banner__img">
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<section id="salons">
-		<div class="container">
-			<div class="salons pb100">
-				<div class="salons__slider_arrows fic mob">
-					<div class="title">Наши салоны</div>
-					<div class="slider__arrows fic">
-						<div class="slider__arrows_arrow leftArrow">
-							<i class="arrowRight"></i>
-						</div>
-						<div class="slider__arrows_arrow rightArrow">
-							<i class="arrowLleft"></i>
-						</div>
-					</div>
-				</div>
-				<div class="title dec">Наши салоны</div>
-				<div class="row salonsSlider">
-					<div class="col-6 col-md-4 col-lg-4 col-xl-3">
-						<div class="salons__block">
-							<img src="{% static 'img/salons/salon1.svg' %}" alt="salon" class="salons__block_img">
-							<div class="salons__elems">
-								<div class="block__title salons__elems_title">BeautyCity Пушкинская</div>
-								<div class="salons__elems_light">ул. Пушкинская, д. 78А</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-6 col-md-4 col-lg-4 col-xl-3">
-						<div class="salons__block">
-							<img src="{% static 'img/salons/salon2.svg' %}" alt="salon" class="salons__block_img">
-							<div class="salons__elems">
-								<div class="block__title salons__elems_title">BeautyCity Ленина</div>
-								<div class="salons__elems_light">ул. Ленина, д. 211</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-6 col-md-4 col-lg-4 col-xl-3">
-						<div class="salons__block">
-							<img src="{% static 'img/salons/salon3.svg' %}" alt="salon" class="salons__block_img">
-							<div class="salons__elems">
-								<div class="salons__elems_title">BeautyCity Красная</div>
-								<div class="salons__elems_light">ул. Красная, д. 10</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-6 col-md-4 col-lg-4 col-xl-3 decVis">
-						<div class="salons__block">
-							<img src="{% static 'img/salons/salon1.svg' %}" alt="salon" class="salons__block_img">
-							<div class="salons__elems">
-								<div class="salons__elems_title">BeautyCity Красная</div>
-								<div class="salons__elems_light">ул. Красная, д. 10</div>
-							</div>
-						</div>
-					</div>
 
-				</div>
-			</div>
-		</div>
-	</section>
+	{% include 'partials/index_banner.html' %}
+	{% include 'partials/index_salons.html' %}
 	<section id="services">
 		<div class="container">
 			<div class="services pb100">
