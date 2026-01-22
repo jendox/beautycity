@@ -420,11 +420,11 @@ $(document).ready(function() {
 	}
 
 	function ensureCsrf() {
-		return fetch('api/auth/csrf', {credentials: 'include'});
+		return fetch('/api/auth/csrf/', {credentials: 'include'});
 	}
 
 	function apiPost(url, payload) {
-		const csrf = getCookie('csrfToken') || '';
+		const csrf = getCookie('csrftoken') || '';
 		return fetch(url, {
 			method: 'POST',
 			credentials: 'include',
@@ -492,7 +492,7 @@ $(document).ready(function() {
 		}
 		try {
 			await ensureCsrf();
-			await apiPost('/api/auth/request-code', { phone });
+			await apiPost('/api/auth/request-code/', { phone });
 
 			currentPhone = phone;
 
@@ -546,7 +546,7 @@ $(document).ready(function() {
 			if (code.length === 4) {
 				try {
 					await ensureCsrf();
-					await apiPost('/api/auth/verify-code', { phone: currentPhone, code });
+					await apiPost('/api/auth/verify-code/', { phone: currentPhone, code });
 
 					$.arcticmodal('close');
 					window.location.reload();
@@ -590,5 +590,18 @@ $(document).ready(function() {
     		$('#authModal').arcticmodal();
   		});
 	})();
+
+	// Logout
+	$(document).off('click', '.accaunt__settings_out').on('click', '.accaunt__settings_out', async function (e) {
+		e.preventDefault();
+
+		try {
+			await ensureCsrf();
+			await apiPost('/api/auth/logout/', {});
+			window.location.href = '/';
+		} catch (err) {
+			alert('Не удалось выйти. Попробуйте ещё раз.');
+		}
+	});
 
 })

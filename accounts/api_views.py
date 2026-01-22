@@ -1,12 +1,13 @@
 import random
 from datetime import timedelta
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -91,3 +92,13 @@ class VerifyCodeAPIView(APIView):
                 },
             },
         )
+
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout(request)
+
+        request.session.pop("auth_phone_pending", None)
+        return Response(data={"ok": True})
