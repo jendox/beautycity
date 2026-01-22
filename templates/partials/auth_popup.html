@@ -1,0 +1,21 @@
+{% load static %}
+<div style="display: none;">
+    <div class="box-modal authPopup popup" id="authModal">
+        <div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
+        <div class="popup__title authPopup__title">Войти по коду</div>
+        <p class="popup__text authPopup__text">Введите свой номер телефона, мы вышлем на него код</p>
+        <form action="#" class="authPopup__form">
+            <div class="contacts__form_inputBlock">
+                <input type="text" name="tel" class="contacts__form_iunput" id="authPhone" placeholder="+7(999)999--99-99" required>
+            </div>
+
+            <div class="authPopup__error" id="authError" style="display: none;"></div>
+
+            <div class="contacts__form_checkboxBlock fic">
+                <input type="checkbox" class="contacts__form_checkbox" id="authConsent" checked>
+                <span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфиденциальности</span>
+            </div>
+            <button type="submit" class="popup__btn authPopup__btn" id="authSubmit">Отправить</button>
+        </form>
+    </div>
+</div>

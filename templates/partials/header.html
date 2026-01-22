@@ -24,10 +24,17 @@
 					<div class="col-2 col-md-2 col-lg-3">
 						<div class="header__block">
 						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+
+						{% if user.is_authenticated %}
+						<div class="header">
+							<img src="{% static 'img/avatars/1.svg' %}" alt="account" class="header__account_img">
+						</div>
+						{% else %}
 						<div class="header__block_auth">
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
 							<span class="header__block_auth__intro">Войти</span>
 						</div>
+						{% endif %}
 					</div>
 					</div>
 				</div>

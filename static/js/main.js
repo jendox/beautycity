@@ -394,10 +394,10 @@ $(document).ready(function() {
 		$('#tipsModal').arcticmodal();
 	})
 	
-	$('.authPopup__form').submit(function() {
-		$('#confirmModal').arcticmodal();
-		return false
-	})
+//	$('.authPopup__form').submit(function() {
+//		$('#confirmModal').arcticmodal();
+//		return false
+//	})
 
 	//service
 	$('.time__items .time__elems_elem .time__elems_btn').click(function(e) {
@@ -412,7 +412,183 @@ $(document).ready(function() {
 			$('.time__btns_next').addClass('active')
 		}
 	})
-	
 
+	// OTP Auth
+	function getCookie(name) {
+		const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+		return m ? decodeURIComponent(m[2]) : null;
+	}
+
+	function ensureCsrf() {
+		return fetch('api/auth/csrf', {credentials: 'include'});
+	}
+
+	function apiPost(url, payload) {
+		const csrf = getCookie('csrfToken') || '';
+		return fetch(url, {
+			method: 'POST',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrf,
+			},
+			body: JSON.stringify(payload || {}),
+		}).then(async (res) => {
+			let data = null;
+			try { data = await res.json(); } catch (e) {}
+			if (!res.ok) {
+				const detail = data && (data.detail || data.non_field_errors || data.phone || data.code);
+				const err = Array.isArray(detail) ? detail[0] : (detail || 'unknown_error');
+				const error = new Error(err);
+				error.status = res.status;
+				error.data = data;
+				throw error;
+			}
+			return data;
+		});
+	}
+
+	function mapAuthError(err) {
+		switch (err.message) {
+			case 'try_later': return 'Код уже отправлен. Подождите и попробуйте снова.';
+			case 'invalid_phone': return 'Неверный формат номера телефона.';
+			case 'phone_mismatch': return 'Номер не совпадает. Запросите код заново.';
+			case 'code_expired': return 'Код истёк. Запросите новый.';
+			case 'invalid_code': return 'Неверный код. Попробуйте ещё раз.';
+			case 'too_many_attempts': return 'Слишком много попыток. Запросите новый код.';
+			default: return 'Ошибка. Попробуйте ещё раз.';
+  		}
+	}
+
+	let currentPhone = '';
+
+	function showBlockError($el, text) {
+		if (!$el || !$el.length) return;
+		$el.text(text).show();
+	}
+	function hideBlockError($el) {
+		if (!$el || !$el.length) return;
+  		$el.text('').hide();
+	}
+
+	$('.authPopup__form').off('submit');
+
+	// OTP Request
+	$('.authPopup__form').on('submit', async function (e) {
+		e.preventDefault();
+
+		const $form = $(this);
+		const $phoneInput = $form.find('input[name="tel"]');
+		const phone = ($phoneInput.val() || '').trim();
+
+		const $consent = $form.find('input[type="checkbox"]');
+		if ($consent.length && !$consent.is(':checked')) {
+    		alert('Нужно согласиться с политикой конфиденциальности.');
+    		return;
+  		}
+		if (!phone) {
+			alert('Введите номер телефона.');
+			return;
+		}
+		try {
+			await ensureCsrf();
+			await apiPost('/api/auth/request-code', { phone });
+
+			currentPhone = phone;
+
+			$('#confirmPhoneText').text(phone);
+
+			$.arcticmodal('close');
+			$('#confirmModal').arcticmodal();
+
+			const $inputs = $('#confirmModal').find('.confirmPopup__number input');
+			$inputs.val('');
+			$inputs.first().focus();
+
+			hideBlockError($('#confirmError'));
+		} catch (err) {
+			showBlockError($('#authError'), mapAuthError(err));
+			if (!$('#authError').length) alert(mapAuthError(err));
+		}
+	});
+
+	// Input & Verify OTP
+	(function setupOtpInputs() {
+		const $wrap = $('#confirmModal').find('.confirmPopup__number');
+		if (!$wrap.length) return;
+
+		const $inputs = $wrap.find('input');
+
+		function readCode() {
+			let code = '';
+			$inputs.each(function () { code += ($(this).val() || '').trim(); });
+			return code;
+		}
+
+		function clearAndFocus() {
+			$inputs.val('');
+			$inputs.first().focus();
+		}
+
+		$inputs.attr('maxlength', '1');
+
+		$inputs.on('input', async function () {
+			hideBlockError($('#confirmError'));
+
+			this.value = (this.value || '').replace(/\D/g, '').slice(0, 1);
+
+			const idx = $inputs.index(this);
+			if (this.value && idx < $inputs.length - 1) {
+				$inputs.eq(idx + 1).focus();
+			}
+
+			const code = readCode();
+			if (code.length === 4) {
+				try {
+					await ensureCsrf();
+					await apiPost('/api/auth/verify-code', { phone: currentPhone, code });
+
+					$.arcticmodal('close');
+					window.location.reload();
+				} catch (err) {
+					showBlockError($('#confirmError'), mapAuthError(err));
+					clearAndFocus();
+				}
+			}
+		});
+
+		$inputs.on('keydown', function (ev) {
+			if (ev.key === 'Backspace' && !this.value) {
+				const idx = $inputs.index(this);
+				if (idx > 0) $inputs.eq(idx - 1).focus();
+			}
+		});
+
+		$(document).off('click', '#otpResendLink').on('click', '#otpResendLink', async function (e) {
+    		e.preventDefault();
+    		hideBlockError($('#confirmError'));
+
+    		if (!currentPhone) {
+      			showBlockError($('#confirmError'), 'Сначала введите номер телефона.');
+      			return;
+    		}
+
+    		try {
+      			await ensureCsrf();
+      			await apiPost('/api/auth/request-code/', { phone: currentPhone });
+      			clearAndFocus();
+    		} catch (err) {
+      			showBlockError($('#confirmError'), mapAuthError(err));
+    		}
+  		});
+
+		$(document).off('click', '#otpChangePhoneLink').on('click', '#otpChangePhoneLink', function (e) {
+    		e.preventDefault();
+			hideBlockError($('#confirmError'));
+    		clearAndFocus();
+    		$.arcticmodal('close');
+    		$('#authModal').arcticmodal();
+  		});
+	})();
 
 })
