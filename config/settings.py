@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os.path
 from pathlib import Path
 
+import dj_database_url
 import environ
 
 env = environ.Env()
@@ -29,6 +30,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG')
+SMS_DEBUG = env.bool('DJANGO_SMS_DEBUG')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
@@ -41,7 +43,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
+    'accounts.apps.AccountsConfig',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,18 +86,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+DATABASE_URL = env(
+    'DATABASE_URL',
+    default=f"postgres://"
+            f"{env('POSTGRES_USER', default='beautycity_user')}:"
+            f"{env('POSTGRES_PASSWORD', default='beautycity_pass')}@"
+            f"{env('POSTGRES_HOST', default='localhost')}:"
+            f"{env('POSTGRES_PORT', default='5432')}/"
+            f"{env('POSTGRES_DB', default='beautycity_dev')}",
+)
+
 DATABASES = {
-    'default': env.db(
-        'DATABASE_URL',
-        default=f"postgres://"
-                f"{env('POSTGRES_USER', default='beautycity_user')}:"
-                f"{env('POSTGRES_PASSWORD', default='beautycity_pass')}@"
-                f"{env('POSTGRES_HOST', default='localhost')}:"
-                f"{env('POSTGRES_PORT', default='5432')}/"
-                f"{env('POSTGRES_DB', default='beautycity_dev')}",
+    'default': dj_database_url.parse(
+        url=DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
     ),
 }
 
@@ -103,6 +125,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+    'accounts.auth_backends.PhoneOTPBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Internationalization
@@ -131,3 +158,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+PHONENUMBER_DEFAULT_REGION = "RU"
+
+# OTP
+OTP_MAX_ATTEMPTS = env.int('OTP_MAX_ATTEMPTS', default=3)
+OTP_RESEND_TIMEOUT_SECONDS = env.int('OTP_RESEND_TIMEOUT_SECONDS', default=60)
+OTP_TTL_SECONDS = env.int('OTP_TTL_SECONDS', default=300)
