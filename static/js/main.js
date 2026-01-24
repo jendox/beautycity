@@ -413,6 +413,14 @@ $(document).ready(function() {
 		}
 	})
 
+	$('.time__btns_next').click(function(e) {
+		if (!$(this).hasClass('active')) {
+			e.preventDefault()
+			return
+		}
+		window.location.href = '/service/confirm/'
+	})
+
 	// OTP Auth
 	function getCookie(name) {
 		const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));

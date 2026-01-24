@@ -10,6 +10,7 @@ urlpatterns = [
     path('', include('pages.urls')),
     path('', include('client.urls')),
     path('', include('salon_admin.urls')),
+    path('', include('appointments.urls')),
 ]
 
 if settings.DEBUG:
