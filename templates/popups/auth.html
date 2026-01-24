@@ -13,7 +13,12 @@
 
             <div class="contacts__form_checkboxBlock fic">
                 <input type="checkbox" class="contacts__form_checkbox" id="authConsent" checked>
-                <span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфиденциальности</span>
+                <span class="contacts__form_checkboxBlock__intro">
+                    Я согласен(а) с
+                    <a class="popup__link" href="{% static 'docs/personal_data_policy.pdf' %}" target="_blank" rel="noopener" download>
+                        политикой конфиденциальности (PDF)
+                    </a>
+                </span>
             </div>
             <button type="submit" class="popup__btn authPopup__btn" id="authSubmit">Отправить</button>
         </form>

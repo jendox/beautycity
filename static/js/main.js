@@ -448,6 +448,25 @@ $(document).ready(function() {
 		});
 	}
 
+	function apiGet(url) {
+		return fetch(url, {
+			method: 'GET',
+			credentials: 'include',
+		}).then(async (res) => {
+			let data = null;
+			try { data = await res.json(); } catch (e) {}
+			if (!res.ok) {
+				const detail = data && (data.detail || data.non_field_errors);
+				const err = Array.isArray(detail) ? detail[0] : (detail || 'unknown_error');
+				const error = new Error(err);
+				error.status = res.status;
+				error.data = data;
+				throw error;
+			}
+			return data;
+		});
+	}
+
 	function mapAuthError(err) {
 		switch (err.message) {
 			case 'try_later': return 'Код уже отправлен. Подождите и попробуйте снова.';
@@ -482,16 +501,23 @@ $(document).ready(function() {
 		const phone = ($phoneInput.val() || '').trim();
 
 		const $consent = $form.find('input[type="checkbox"]');
-		if ($consent.length && !$consent.is(':checked')) {
-    		alert('Нужно согласиться с политикой конфиденциальности.');
-    		return;
-  		}
+		const consentChecked = !$consent.length || $consent.is(':checked');
 		if (!phone) {
 			alert('Введите номер телефона.');
 			return;
 		}
 		try {
+			if (!consentChecked) {
+				const status = await apiGet('/api/pd/consent-required/?phone=' + encodeURIComponent(phone));
+				if (status && status.required) {
+					alert('Нужно согласиться с политикой конфиденциальности.');
+					return;
+				}
+			}
 			await ensureCsrf();
+			if (consentChecked) {
+				await apiPost('/api/pd/consent/', { phone: phone, accepted: true });
+			}
 			await apiPost('/api/auth/request-code/', { phone });
 
 			currentPhone = phone;

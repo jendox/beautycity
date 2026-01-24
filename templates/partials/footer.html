@@ -46,7 +46,15 @@
 				<div class="footer__bottom">
 					<div class="row">
 						<div class="col-md-4 col-lg-3">
-							<a href="#" class="footer__link">Политика конфиденциальности</a>
+							<a
+								href="{% static 'docs/personal_data_policy.pdf' %}"
+								class="footer__link"
+								target="_blank"
+								rel="noopener"
+								download
+							>
+								Политика конфиденциальности
+							</a>
 						</div>
 						<div class="col-md-3">
 							<div class="footer__copy">2022. Все права защищены</div>

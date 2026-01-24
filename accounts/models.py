@@ -13,6 +13,7 @@ from .managers import CustomUserManager
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=100, unique=False, blank=True, null=False)
     phone = PhoneNumberField(unique=True)
+    pd_consent_at = models.DateTimeField(default=timezone.now)
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = []
@@ -30,6 +31,18 @@ class CustomUser(AbstractUser):
         if self.username:
             return self.username
         return str(self.phone)
+
+
+class PersonalDataConsent(models.Model):
+    phone = models.CharField(max_length=32, unique=True, db_index=True)
+    accepted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Согласие на обработку ПД"
+        verbose_name_plural = "Согласия на обработку ПД"
+
+    def __str__(self):
+        return self.phone
 
 
 class PhoneOTP(models.Model):

@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
 
-from accounts.models import PhoneOTP
+from accounts.models import PersonalDataConsent, PhoneOTP
 from accounts.phone import phone_to_user_field
 from config import settings
 
@@ -61,6 +61,7 @@ class PhoneOTPBackend(ModelBackend):
                 phone=phone_to_user_field(phone_e164),
                 defaults={"username": ""},
             )
+            PersonalDataConsent.objects.get_or_create(phone=phone_e164)
 
         if not self.user_can_authenticate(user):
             raise OTPAuthError("user_inactive", status.HTTP_403_FORBIDDEN)

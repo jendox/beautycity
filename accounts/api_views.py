@@ -1,7 +1,7 @@
 import random
 from datetime import timedelta
 
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.urls import reverse
@@ -12,9 +12,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.models import PhoneOTP
+from accounts.models import PersonalDataConsent, PhoneOTP
 from accounts.otp_delivery import deliver_otp
-from accounts.serializers import RequestCodeSerializer, ValidateCodeSerializer
+from accounts.phone import normalize_phone, phone_to_user_field
+from accounts.serializers import PersonalDataConsentSerializer, RequestCodeSerializer, ValidateCodeSerializer
 from config import settings
 from salons.models import SalonAdmin
 
@@ -37,6 +38,34 @@ def _get_dashboard_url(user: User) -> str:
 def csrf(request):
     token = get_token(request)
     return JsonResponse({"csrfToken": token})
+
+
+@require_GET
+def consent_required(request):
+    raw_phone = request.GET.get("phone", "")
+    try:
+        phone_e164 = normalize_phone(raw_phone)
+    except ValueError:
+        return JsonResponse({"detail": "invalid_phone"}, status=400)
+
+    if User.objects.filter(phone=phone_to_user_field(phone_e164)).exists():
+        return JsonResponse({"required": False})
+    if PersonalDataConsent.objects.filter(phone=phone_e164).exists():
+        return JsonResponse({"required": False})
+    return JsonResponse({"required": True})
+
+
+class PersonalDataConsentAPIView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        serializer = PersonalDataConsentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone_e164 = serializer.validated_data["phone"]
+        PersonalDataConsent.objects.get_or_create(phone=phone_e164)
+
+        return Response(data={"ok": True})
 
 
 class RequestCodeAPIView(APIView):
