@@ -7,7 +7,7 @@ from config import settings
 class Salon(models.Model):
     name = models.CharField('Название', max_length=100)
     address = models.CharField('Адрес', max_length=255, blank=True)
-    image = models.FileField(upload_to='salons/', blank=True, null=True)
+    image = models.FileField('Изображение', upload_to='salons/', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Салон'
@@ -18,10 +18,15 @@ class Salon(models.Model):
 
 
 class ServiceCategory(models.Model):
-    salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='service_categories')
-    title = models.CharField(max_length=100)
-    sort_order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
+    salon = models.ForeignKey(
+        Salon,
+        on_delete=models.CASCADE,
+        related_name='service_categories',
+        verbose_name='Салон',
+    )
+    title = models.CharField('Название', max_length=100)
+    sort_order = models.PositiveIntegerField('Порядок сортировки', default=0)
+    is_active = models.BooleanField('Активна', default=True)
 
     class Meta:
         verbose_name = 'Категория услуг'
@@ -35,19 +40,25 @@ class ServiceCategory(models.Model):
 
 
 class Service(models.Model):
-    salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='services')
+    salon = models.ForeignKey(
+        Salon,
+        on_delete=models.CASCADE,
+        related_name='services',
+        verbose_name='Салон',
+    )
     category = models.ForeignKey(
         ServiceCategory,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
         related_name='services',
+        verbose_name='Категория услуги',
     )
-    title = models.CharField(max_length=255)
-    image = models.FileField(upload_to='services/', blank=True, null=True)
-    duration_minutes = models.PositiveIntegerField(default=60)
-    price = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
+    title = models.CharField('Название', max_length=255)
+    image = models.FileField('Изображение', upload_to='services/', blank=True, null=True)
+    duration_minutes = models.PositiveIntegerField('Продолжительность', default=60)
+    price = models.PositiveIntegerField('Цена', default=0)
+    is_active = models.BooleanField('Активна', default=True)
 
     class Meta:
         verbose_name = 'Услуга'
@@ -63,9 +74,19 @@ class Service(models.Model):
 
 
 class SalonAdmin(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='salon_adminships')
-    salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='salon_admins')
-    is_active = models.BooleanField(default=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='salon_adminships',
+        verbose_name='Пользователь',
+    )
+    salon = models.ForeignKey(
+        Salon,
+        on_delete=models.CASCADE,
+        related_name='salon_admins',
+        verbose_name='Салон',
+    )
+    is_active = models.BooleanField('Активен', default=True)
 
     class Meta:
         verbose_name = 'Администратор салона'
@@ -77,9 +98,15 @@ class SalonAdmin(models.Model):
 
 
 class Master(models.Model):
-    salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='masters')
-    name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
+    salon = models.ForeignKey(
+        Salon,
+        on_delete=models.CASCADE,
+        related_name='masters',
+        verbose_name='Салон',
+    )
+    name = models.CharField('Имя', max_length=255)
+    image = models.FileField('Изображение', upload_to='masters/', blank=True, null=True)
+    is_active = models.BooleanField('Активен', default=True)
 
     class Meta:
         verbose_name = 'Мастер'
