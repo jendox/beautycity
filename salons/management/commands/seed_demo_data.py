@@ -1,7 +1,10 @@
-# salons/management/commands/seed_demo_data.py
 from __future__ import annotations
 
+from pathlib import Path
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -15,11 +18,38 @@ def _money_to_int(value: str) -> int:
     return int(digits) if digits else 0
 
 
+def _set_filefield_from_static(*, filefield, dst_name: str, src_path: Path) -> bool:
+    if not src_path.exists():
+        return False
+
+    if filefield and filefield.name == dst_name:
+        return False
+
+    try:
+        storage = filefield.storage
+        if storage.exists(dst_name):
+            storage.delete(dst_name)
+    except Exception:
+        pass
+
+    try:
+        if filefield:
+            filefield.delete(save=False)
+    except Exception:
+        pass
+
+    with src_path.open("rb") as fp:
+        filefield.save(dst_name, File(fp), save=True)
+    return True
+
+
 class Command(BaseCommand):
     help = "Seed demo data (salons, admins, categories, services, masters) from frontend templates"
 
     @transaction.atomic
     def handle(self, *args, **options):
+        static_root = Path(settings.BASE_DIR) / "static"
+
         salons_payload = [
             {"name": "BeautyCity Пушкинская", "address": "ул. Пушкинская, д. 78А"},
             {"name": "BeautyCity Ленина", "address": "ул. Ленина, д. 211"},
@@ -81,9 +111,12 @@ class Command(BaseCommand):
             "categories": 0,
             "services": 0,
             "masters": 0,
+            "salon_images": 0,
+            "service_images": 0,
+            "master_images": 0,
         }
 
-        # 1) Create / update salons
+        # Create / update salons
         salons: dict[str, Salon] = {}
         for s in salons_payload:
             obj, was_created = Salon.objects.get_or_create(
@@ -97,7 +130,19 @@ class Command(BaseCommand):
             salons[obj.name] = obj
             created["salons"] += int(was_created)
 
-        # 1.1) Create / link salon admins
+        salon_images = {
+            "BeautyCity Пушкинская": static_root / "img" / "salons" / "salon1.svg",
+            "BeautyCity Ленина": static_root / "img" / "salons" / "salon2.svg",
+            "BeautyCity Красная": static_root / "img" / "salons" / "salon3.svg",
+        }
+        for salon_name, src_path in salon_images.items():
+            salon = salons.get(salon_name)
+            if not salon:
+                continue
+            dst_name = f"salons/demo_{salon.id}.svg"
+            if _set_filefield_from_static(filefield=salon.image, dst_name=dst_name, src_path=src_path):
+                created["salon_images"] += 1
+
         for salon_name, admin_data in salon_admins_payload.items():
             salon = salons.get(salon_name)
             if not salon:
@@ -134,7 +179,7 @@ class Command(BaseCommand):
             created["admin_users"] += int(user_created)
             created["admin_links"] += int(link_created)
 
-        # 2) Create categories + services for EACH salon
+        # Create categories + services for EACH salon
         for salon in salons.values():
             for sort_order, (cat_title, services) in enumerate(categories_services, start=1):
                 cat, was_created = ServiceCategory.objects.get_or_create(
@@ -181,7 +226,23 @@ class Command(BaseCommand):
 
                     created["services"] += int(was_created)
 
-        # 3) Create masters
+        service_images = [
+            static_root / "img" / "services" / "service1.svg",
+            static_root / "img" / "services" / "service2.svg",
+            static_root / "img" / "services" / "service3.svg",
+            static_root / "img" / "services" / "service4.svg",
+            static_root / "img" / "services" / "service5.svg",
+            static_root / "img" / "services" / "service6.svg",
+        ]
+        for salon in salons.values():
+            salon_services = list(Service.objects.filter(salon=salon).order_by("id"))
+            for idx, svc in enumerate(salon_services, start=1):
+                src_path = service_images[(idx - 1) % len(service_images)]
+                dst_name = f"services/demo_{salon.id}_{idx}.svg"
+                if _set_filefield_from_static(filefield=svc.image, dst_name=dst_name, src_path=src_path):
+                    created["service_images"] += 1
+
+        # Create masters
         for salon_name, names in masters_by_salon.items():
             salon = salons.get(salon_name)
             if not salon:
@@ -203,6 +264,34 @@ class Command(BaseCommand):
 
                 created["masters"] += int(was_created)
 
+        master_images = [
+            static_root / "img" / "masters" / "master1.svg",
+            static_root / "img" / "masters" / "master2.svg",
+            static_root / "img" / "masters" / "master3.svg",
+            static_root / "img" / "masters" / "master4.svg",
+            static_root / "img" / "masters" / "master5.svg",
+            static_root / "img" / "masters" / "master6.svg",
+        ]
+        for salon_name, names in masters_by_salon.items():
+            salon = salons.get(salon_name)
+            if not salon:
+                continue
+            if not hasattr(Master, "image"):
+                continue
+
+            for idx, name in enumerate(names, start=1):
+                name = (name or "").strip()
+                if not name or name.lower() == "любой мастер":
+                    continue
+                try:
+                    master = Master.objects.get(salon=salon, name=name)
+                except Master.DoesNotExist:
+                    continue
+                src_path = master_images[(idx - 1) % len(master_images)]
+                dst_name = f"masters/demo_{salon.id}_{idx}.svg"
+                if _set_filefield_from_static(filefield=master.image, dst_name=dst_name, src_path=src_path):
+                    created["master_images"] += 1
+
         self.stdout.write(self.style.SUCCESS(
             "Seed done.\n"
             f"Created salons: {created['salons']}\n"
@@ -211,6 +300,9 @@ class Command(BaseCommand):
             f"Created categories: {created['categories']}\n"
             f"Created services: {created['services']}\n"
             f"Created masters: {created['masters']}\n"
+            f"Attached salon images: {created['salon_images']}\n"
+            f"Attached service images: {created['service_images']}\n"
+            f"Attached master images: {created['master_images']}\n"
             "\nSalon admins for PM testing:\n"
             "BeautyCity Пушкинская — +79990000001\n"
             "BeautyCity Ленина — +79990000002\n"
