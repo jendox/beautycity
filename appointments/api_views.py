@@ -320,6 +320,8 @@ def _select_any_master_for_hold(*, salon: Salon, starts_at, ends_at, now):
 
 
 def _select_master_for_hold(*, salon: Salon, starts_at, ends_at, master_id: int | None, now):
+    if starts_at <= now:
+        return Response(data={"detail": "invalid_starts_at"}, status=400)
     if master_id is not None:
         return _select_specific_master_for_hold(
             salon=salon,
@@ -459,6 +461,8 @@ class BookingHoldListCreateAPIView(APIView):
 
         now = timezone.now()
         starts_at = _normalize_starts_at(data["starts_at"])
+        if starts_at <= now:
+            return Response(data={"detail": "invalid_starts_at"}, status=400)
 
         duration = _service_duration_minutes(service)
         if isinstance(duration, Response):
@@ -645,6 +649,8 @@ def _confirm_hold_to_appointment(*, request, hold_id: str, client: dict, now, us
         hold = _get_hold_for_confirmation(hold_id=hold_id, session_key=request.session.session_key, now=now)
         if isinstance(hold, Response):
             return hold
+        if hold.starts_at <= now:
+            return Response(data={"detail": "invalid_starts_at"}, status=400)
 
         master = None
         if hold.master_id:

@@ -442,13 +442,13 @@ $(document).ready(function() {
 			}
 		}
 
-		async function loadSlotsForSelectedDate() {
-			const params = currentParams()
-			const date = $form.attr('data-date') || ''
-			if (!params.serviceId || !date || !params.salonId) {
-				clearSlots()
-				return
-			}
+			async function loadSlotsForSelectedDate() {
+				const params = currentParams()
+				const date = $form.attr('data-date') || ''
+				if (!params.serviceId || !date || !params.salonId) {
+					clearSlots()
+					return
+				}
 
 			clearSlots()
 			setSlotsMessage('Загрузка...')
@@ -472,23 +472,34 @@ $(document).ready(function() {
 				setSlotsMessage('Нет свободных окон на выбранную дату')
 				return
 			}
-			setSlotsMessage('')
+				setSlotsMessage('')
 
-			slots.forEach(function(slot) {
-				const startsAt = String(slot.starts_at || '')
-				const timeStr = startsAt.slice(11, 16)
-				const hour = Number(timeStr.slice(0, 2))
-				const $btn = $('<button/>', {
-					'class': 'time__elems_btn',
-					'data-starts-at': startsAt,
-					'data-time': timeStr,
-					'text': timeStr,
+				const todayYmd = formatYmd(new Date())
+				const isToday = date === todayYmd
+				const nowMs = Date.now()
+
+				slots.forEach(function(slot) {
+					const startsAt = String(slot.starts_at || '')
+					const timeStr = startsAt.slice(11, 16)
+					const hour = Number(timeStr.slice(0, 2))
+					const startMs = Date.parse(startsAt)
+					const isPastSlot = isToday && !Number.isNaN(startMs) && startMs <= nowMs
+
+					const $btn = $('<button/>', {
+						'class': 'time__elems_btn',
+						'data-starts-at': startsAt,
+						'data-time': timeStr,
+						'text': timeStr,
+					})
+					if (isPastSlot) {
+						$btn.prop('disabled', true)
+						$btn.attr('aria-disabled', 'true')
+					}
+					if (hour < 12) $slotsMorning.append($btn)
+					else if (hour < 17) $slotsDay.append($btn)
+					else $slotsEvening.append($btn)
 				})
-				if (hour < 12) $slotsMorning.append($btn)
-				else if (hour < 17) $slotsDay.append($btn)
-				else $slotsEvening.append($btn)
-			})
-		}
+			}
 
 		if (document.querySelector('#datepickerHere')) {
 			datepicker = new AirDatepicker('#datepickerHere', {
@@ -650,13 +661,16 @@ $(document).ready(function() {
 				updateNextButton()
 			})
 
-				$(document).on('click', '.time__elems_btn', function(e) {
-					e.preventDefault()
-					$('.time__elems_btn').removeClass('active')
-					$(this).addClass('active')
-					const startsAt = $(this).attr('data-starts-at') || ''
-					const timeStr = $(this).attr('data-time') || ''
-					$form.attr('data-starts-at', startsAt)
+					$(document).on('click', '.time__elems_btn', function(e) {
+						e.preventDefault()
+						if ($(this).prop('disabled')) {
+							return
+						}
+						$('.time__elems_btn').removeClass('active')
+						$(this).addClass('active')
+						const startsAt = $(this).attr('data-starts-at') || ''
+						const timeStr = $(this).attr('data-time') || ''
+						$form.attr('data-starts-at', startsAt)
 					$form.attr('data-time', timeStr)
 					updateNextButton()
 				})
@@ -865,48 +879,14 @@ $(document).ready(function() {
 		}
 
 		initServiceConfirm()
-
-
-
-	// 	console.log($('.service__masters > .panel').attr('data-masters'))
-	// if($('.service__salons .accordion.selected').text() === "BeautyCity Пушкинская  ул. Пушкинская, д. 78А") {
-	// }
-
-
-	$(document).on('click', '.servicePage', function() {
-		updateNextButton()
-	})
-
-	// $('.accordion__block_item').click(function(e) {
-	// 	const thisName = $(this).find('.accordion__block_item_intro').text()
-	// 	const thisAddress = $(this).find('.accordion__block_item_address').text()
-	// 	console.log($(this).parent().parent().parent().parent())
-	// 	$(this).parent().parent().parent().parent().find('button.active').addClass('selected').text(thisName + '  ' +thisAddress)
-	// })
-
-
-
-	// $('.accordion__block_item').click(function(e) {
-	// 	const thisChildName = $(this).text()
-	// 	console.log(thisChildName)
-	// 	console.log($(this).parent().parent().parent())
-	// 	$(this).parent().parent().parent().parent().parent().find('button.active').addClass('selected').text(thisChildName)
-
-	// })
-	// $('.accordion.selected').click(function() {
-	// 	$(this).parent().find('.panel').hasClass('selected') ? 
-	// 	 $(this).parent().find('.panel').removeClass('selected')
-	// 		:
-	// 	$(this).parent().find('.panel').addClass('selected')
-	// })
-
-
-		//popup
-		$(document).on('click', '[data-action="auth-open"]', function(e) {
-			e.preventDefault()
-			$('#authModal').arcticmodal();
-			// $('#confirmModal').arcticmodal();
+		$(document).on('click', '.servicePage', function() {
+			updateNextButton()
 		})
+			//popup
+			$(document).on('click', '[data-action="auth-open"]', function(e) {
+				e.preventDefault()
+				$('#authModal').arcticmodal();
+			})
 
 	$('.rewiewPopupOpen').click(function(e) {
 		e.preventDefault()
@@ -920,14 +900,8 @@ $(document).ready(function() {
 		e.preventDefault()
 		$('#tipsModal').arcticmodal();
 	})
-	
-//	$('.authPopup__form').submit(function() {
-//		$('#confirmModal').arcticmodal();
-//		return false
-//	})
-
-		// service booking: Next -> create hold -> open confirm page
-		$('.time__btns_next').click(async function(e) {
+			// service booking: Next -> create hold -> open confirm page
+			$('.time__btns_next').click(async function(e) {
 			if (!isServicePage()) return
 			e.preventDefault()
 
@@ -956,15 +930,20 @@ $(document).ready(function() {
 				payload.master_id = Number(masterId)
 			}
 
-			try {
-				const res = await apiPost('/api/booking/holds/', payload)
-				if (res && res.hold_id) {
-					window.location.href = '/service/confirm/?hold_id=' + encodeURIComponent(res.hold_id)
+				try {
+					const res = await apiPost('/api/booking/holds/', payload)
+					if (res && res.hold_id) {
+						window.location.href = '/service/confirm/?hold_id=' + encodeURIComponent(res.hold_id)
+					}
+				} catch (err) {
+					const code = err && err.message
+					if (code === 'invalid_starts_at') {
+						alert('Нельзя записаться на прошедшее время. Выберите другое время.')
+						return
+					}
+					alert('Не удалось забронировать слот. Попробуйте выбрать другое время.')
 				}
-			} catch (err) {
-				alert('Не удалось забронировать слот. Попробуйте выбрать другое время.')
-			}
-		})
+			})
 
 		$('.time__btns_home').click(function(e) {
 			if (!isServicePage()) return
