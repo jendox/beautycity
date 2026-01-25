@@ -460,23 +460,24 @@ $(document).ready(function() {
 				url += '&master_id=' + encodeURIComponent(params.masterId)
 			}
 
-			let slots = []
-			try {
-				const payload = await fetchJson(url)
-				slots = (payload && payload.slots) || []
-			} catch (e) {
-				slots = []
-			}
+				let slots = []
+				try {
+					const payload = await fetchJson(url)
+					slots = (payload && payload.slots) || []
+				} catch (e) {
+					slots = []
+				}
 
-			if (!Array.isArray(slots) || !slots.length) {
-				setSlotsMessage('Нет свободных окон на выбранную дату')
-				return
-			}
+				if (!Array.isArray(slots) || !slots.length) {
+					setSlotsMessage('Нет свободных окон на выбранную дату')
+					return
+				}
 				setSlotsMessage('')
 
 				const todayYmd = formatYmd(new Date())
 				const isToday = date === todayYmd
 				const nowMs = Date.now()
+				let hasEnabledSlots = false
 
 				slots.forEach(function(slot) {
 					const startsAt = String(slot.starts_at || '')
@@ -484,6 +485,8 @@ $(document).ready(function() {
 					const hour = Number(timeStr.slice(0, 2))
 					const startMs = Date.parse(startsAt)
 					const isPastSlot = isToday && !Number.isNaN(startMs) && startMs <= nowMs
+					const apiAvailable = slot && slot.is_available !== false
+					const isDisabled = isPastSlot || !apiAvailable
 
 					const $btn = $('<button/>', {
 						'class': 'time__elems_btn',
@@ -491,14 +494,20 @@ $(document).ready(function() {
 						'data-time': timeStr,
 						'text': timeStr,
 					})
-					if (isPastSlot) {
+					if (isDisabled) {
 						$btn.prop('disabled', true)
 						$btn.attr('aria-disabled', 'true')
+					} else {
+						hasEnabledSlots = true
 					}
 					if (hour < 12) $slotsMorning.append($btn)
 					else if (hour < 17) $slotsDay.append($btn)
 					else $slotsEvening.append($btn)
 				})
+
+				if (!hasEnabledSlots) {
+					setSlotsMessage('Нет свободных окон на выбранную дату')
+				}
 			}
 
 		if (document.querySelector('#datepickerHere')) {
@@ -939,6 +948,17 @@ $(document).ready(function() {
 					const code = err && err.message
 					if (code === 'invalid_starts_at') {
 						alert('Нельзя записаться на прошедшее время. Выберите другое время.')
+						return
+					}
+					if (code === 'slot_unavailable') {
+						const $selected = $('.time__elems_btn.active')
+						$selected.removeClass('active').prop('disabled', true).attr('aria-disabled', 'true')
+
+						$form.attr('data-time', '')
+						$form.attr('data-starts-at', '')
+						updateNextButton()
+
+						alert('Этот слот уже занят. Выберите другое время.')
 						return
 					}
 					alert('Не удалось забронировать слот. Попробуйте выбрать другое время.')

@@ -48,7 +48,7 @@ def _overlaps(a_start, a_end, b_start, b_end) -> bool:
 
 
 def _busy_intervals_for_master(*, master: Master, day_start, day_end, now):
-    appts = (
+    appointments = (
         Appointment.objects.filter(
             master=master,
             status=Appointment.STATUS_BOOKED,
@@ -68,18 +68,18 @@ def _busy_intervals_for_master(*, master: Master, day_start, day_end, now):
         .only("starts_at", "ends_at")
         .order_by("starts_at")
     )
-    intervals = [(a.starts_at, a.ends_at) for a in appts] + [(h.starts_at, h.ends_at) for h in holds]
+    intervals = [(a.starts_at, a.ends_at) for a in appointments] + [(h.starts_at, h.ends_at) for h in holds]
     intervals.sort(key=lambda x: x[0])
     return intervals
 
 
 def _shifts_for(*, salon: Salon | None, master: Master | None, weekday: int):
-    qs = MasterShift.objects.filter(is_active=True, weekday=weekday).select_related("master", "salon")
+    query = MasterShift.objects.filter(is_active=True, weekday=weekday).select_related("master", "salon")
     if salon:
-        qs = qs.filter(salon=salon)
+        query = query.filter(salon=salon)
     if master:
-        qs = qs.filter(master=master)
-    return list(qs.order_by("starts_time", "id"))
+        query = query.filter(master=master)
+    return list(query.order_by("starts_time", "id"))
 
 
 def _shift_covers(*, day, shift: MasterShift, starts_at, ends_at) -> bool:
@@ -129,8 +129,8 @@ def _available_slots_for_salon(*, day, salon: Salon, duration_minutes: int, now)
         return []
 
     shifts_by_master: dict[int, list[MasterShift]] = defaultdict(list)
-    for s in shifts:
-        shifts_by_master[s.master_id].append(s)
+    for shift in shifts:
+        shifts_by_master[shift.master_id].append(shift)
 
     duration = timedelta(minutes=duration_minutes)
     available_by_start: dict[datetime, datetime] = {}
@@ -226,6 +226,29 @@ def _slots_to_payload(slots):
         {"starts_at": s0.isoformat(), "ends_at": s1.isoformat(), "is_available": True}
         for s0, s1 in slots
     ]
+
+
+def _slots_grid_for_master(*, day, master: Master, salon: Salon, duration_minutes: int, now):
+    weekday = day.weekday()
+    shifts = [s for s in _shifts_for(salon=salon, master=master, weekday=weekday) if s.salon_id == salon.id]
+    if not shifts:
+        return []
+
+    day_start, day_end = _day_bounds(day)
+    busy = _busy_intervals_for_master(master=master, day_start=day_start, day_end=day_end, now=now)
+    duration = timedelta(minutes=duration_minutes)
+
+    unique = {}
+    for shift in shifts:
+        for starts_at in _iter_slot_starts(day=day, shift=shift, duration_minutes=duration_minutes):
+            ends_at = starts_at + duration
+            overlaps_busy = any(_overlaps(starts_at, ends_at, b0, b1) for (b0, b1) in busy)
+            is_available = (starts_at > now) and (not overlaps_busy)
+            unique.setdefault(
+                starts_at,
+                {"starts_at": starts_at.isoformat(), "ends_at": ends_at.isoformat(), "is_available": is_available},
+            )
+    return [unique[k] for k in sorted(unique.keys())]
 
 
 def _available_dates_for_request(
@@ -387,14 +410,24 @@ class AvailabilitySlotsAPIView(APIView):
 
         now = timezone.now()
         day = data["date"]
-        slots = _slots_for_request(day=day, service=service, salon=salon, master=master, now=now)
+        if master and salon:
+            slots_payload = _slots_grid_for_master(
+                day=day,
+                master=master,
+                salon=salon,
+                duration_minutes=service.duration_minutes,
+                now=now,
+            )
+        else:
+            slots = _slots_for_request(day=day, service=service, salon=salon, master=master, now=now)
+            slots_payload = _slots_to_payload(slots)
 
         return Response(
             data={
                 "date": day.isoformat(),
                 "timezone": str(_tz()),
                 "slot_minutes_step": SLOT_STEP_MINUTES,
-                "slots": _slots_to_payload(slots),
+                "slots": slots_payload,
             },
         )
 
@@ -762,25 +795,32 @@ class MyAppointmentsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        qs = (
+        query = (
             Appointment.objects.filter(user=request.user)
             .select_related("salon", "service", "master")
             .order_by("-starts_at")
         )
         results = []
-        for appt in qs:
+        for appointment in query:
             results.append(
                 {
-                    "appointment_id": appt.id,
-                    "salon": {"id": appt.salon_id, "name": appt.salon.name, "address": appt.salon.address},
-                    "service": {"id": appt.service_id, "title": appt.service.title},
-                    "master": {"id": appt.master_id, "name": appt.master.name} if appt.master else None,
-                    "starts_at": appt.starts_at.isoformat(),
-                    "ends_at": appt.ends_at.isoformat(),
-                    "status": appt.status,
-                    "is_paid": appt.is_paid,
-                    "total_price": appt.total_price,
-                    "currency": appt.currency,
+                    "appointment_id": appointment.id,
+                    "salon": {
+                        "id": appointment.salon_id,
+                        "name": appointment.salon.name,
+                        "address": appointment.salon.address,
+                    },
+                    "service": {"id": appointment.service_id, "title": appointment.service.title},
+                    "master": {
+                        "id": appointment.master_id,
+                        "name": appointment.master.name,
+                    } if appointment.master else None,
+                    "starts_at": appointment.starts_at.isoformat(),
+                    "ends_at": appointment.ends_at.isoformat(),
+                    "status": appointment.status,
+                    "is_paid": appointment.is_paid,
+                    "total_price": appointment.total_price,
+                    "currency": appointment.currency,
                 },
             )
         return Response(data={"results": results})

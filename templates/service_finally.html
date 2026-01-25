@@ -78,15 +78,20 @@
 									<div class="serviceFinally__form_notice serviceFinally__form_notice--error" data-role="booking-error" style="display:none;"></div>
 									<div class="serviceFinally__form_notice serviceFinally__form_notice--success" data-role="booking-success" style="display:none;"></div>
 									
-									<textarea name="contactsTextarea" class="contacts__form_textarea" placeholder="Вопрос(необязательно)"></textarea>
-									<div class="contacts__form_checkboxBlock fic">
-										<input type="checkbox" class="contacts__form_checkbox" checked>
-										<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+										<textarea name="contactsTextarea" class="contacts__form_textarea" placeholder="Вопрос(необязательно)"></textarea>
+										<div class="contacts__form_checkboxBlock fic">
+											<input type="checkbox" class="contacts__form_checkbox" checked>
+											<span class="contacts__form_checkboxBlock__intro">
+												Я согласен(а) с
+												<a href="{% static 'docs/personal_data_policy.pdf' %}" target="_blank" rel="noopener">
+													политикой конфиденциальности
+												</a>
+											</span>
+										</div>
+										<button type="submit" class="serviceFinallys__form_btn" data-action="book">Записаться</button>
+										<button type="button" class="serviceFinallys__form_back" data-action="back">Назад</button>
 									</div>
-									<button type="submit" class="serviceFinallys__form_btn" data-action="book">Записаться</button>
-									<button type="button" class="serviceFinallys__form_back" data-action="back">Назад</button>
-								</div>
-						</form>	
+							</form>	
 					</div>
 					<div class="col-md-12 col-lg-5">
 						<img src="{% static 'img/bannerImg.svg' %}" alt="bannerImg" class="banner__img">
