@@ -12,6 +12,6 @@ class IndexView(TemplateView):
         salons = Salon.objects.all().order_by('id')
         context['salons'] = salons
         context['services'] = Service.objects.filter(is_active=True).order_by('id')[:6]
-        context['masters'] = Master.objects.filter(is_active=True).select_related('salon').order_by('id')[:6]
+        context['masters'] = Master.objects.filter(is_active=True).select_related('salon').order_by('?')[:6]
 
         return context
