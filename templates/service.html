@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-<body class="servicePage">
 {% block content %}
+	<div class="servicePage">
 	{% include 'partials/mob_menu.html' %}
 	{% include 'partials/header.html' %}
 	<section id="service">
@@ -32,99 +32,26 @@
 					<div class="service__form_block service__salons">
 						<button class="accordion">(Выберите салон)</button>
 						<div class="panel">
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_intro">BeautyCity Пушкинская</div>
-						  	<div class="accordion__block_address">ул. Пушкинская, д. 78А</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_intro">BeautyCity Ленина</div>
-						  	<div class="accordion__block_address">ул. Ленина, д. 211</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_intro">BeautyCity Красная</div>
-						  	<div class="accordion__block_address">ул. Красная, д. 10</div>
-						  </div>
+							<div class="accordion__block fic">
+								<div class="accordion__block_intro">Загрузка...</div>
+							</div>
 						</div>
 					</div>
 					<div class="service__form_block service__services">
 						<button class="accordion">(Выберите услугу)</button>
 						<div class="panel">
-							<button class="accordion">Парикмахерские услуги</button>
-						 	<div class="panel">
-
-							  	<!-- <div class="accordion__block_intro">Макияж</div> -->
-							  		<div class="accordion__block_items">
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Окрашивание волос</div>
-									  		<div class="accordion__block_item_address">5 000 ₽</div>
-							  			</div>
-
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Укладка волос</div>
-									  		<div class="accordion__block_item_address">1 500 ₽</div>
-							  			</div>
-								  </div>
-
-							</div>
-						 	<button class="accordion">Ногтевой сервис</button>
-							<div class="panel">
-
-							  	<!-- <div class="accordion__block_intro">Макияж</div> -->
-							  		<div class="accordion__block_items">
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Маникюр. Классический</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Педикюр</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Наращивание ногтей</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-								  </div>
-
-							</div>
-						 <!--  <div class="accordion__block">
-						  	<div class="accordion__block_intro">Парикмахерские услуги</div>
-						  </div>
-						  <div class="accordion__block">
-						  	<div class="accordion__block_intro">Ногтевой сервис</div>
-						  </div> -->
-						  <button class="accordion">Макияж</button>
-						  <div class="panel">
-
-
-							  	<!-- <div class="accordion__block_intro">Макияж</div> -->
-							  		<div class="accordion__block_items">
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Дневной макияж</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Свадебный макияж</div>
-									  		<div class="accordion__block_item_address">3 000 ₽</div>
-							  			</div>
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Вечерний макияж</div>
-									  		<div class="accordion__block_item_address">2 000 ₽</div>
-							  			</div>
-								  </div>
-
+							<div class="accordion__block fic">
+								<div class="accordion__block_intro">Сначала выберите салон</div>
 							</div>
 						</div>
 					</div>
 					<div class="service__form_block service__masters">
 						<button class="accordion">(Выберите мастера)</button>
 						<div class="panel">
-
+							<div class="accordion__block fic">
+								<div class="accordion__block_intro">Сначала выберите салон</div>
+							</div>
 						</div>
-
-
-
 					</div>
 
 				</form>
@@ -182,5 +109,5 @@
 		</div>
 	</section>
 	{% include 'partials/footer.html' %}
+	</div>
 {% endblock %}
-</body>

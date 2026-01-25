@@ -22,13 +22,20 @@ def _set_filefield_from_static(*, filefield, dst_name: str, src_path: Path) -> b
     if not src_path.exists():
         return False
 
-    if filefield and filefield.name == dst_name:
+    expected_name = dst_name
+    if filefield:
+        try:
+            expected_name = filefield.field.generate_filename(filefield.instance, dst_name)
+        except Exception:
+            expected_name = dst_name
+
+    if filefield and filefield.name == expected_name:
         return False
 
     try:
         storage = filefield.storage
-        if storage.exists(dst_name):
-            storage.delete(dst_name)
+        if storage.exists(expected_name):
+            storage.delete(expected_name)
     except Exception:
         pass
 
@@ -139,7 +146,7 @@ class Command(BaseCommand):
             salon = salons.get(salon_name)
             if not salon:
                 continue
-            dst_name = f"salons/demo_{salon.id}.svg"
+            dst_name = f"demo_{salon.id}.svg"
             if _set_filefield_from_static(filefield=salon.image, dst_name=dst_name, src_path=src_path):
                 created["salon_images"] += 1
 
@@ -238,7 +245,7 @@ class Command(BaseCommand):
             salon_services = list(Service.objects.filter(salon=salon).order_by("id"))
             for idx, svc in enumerate(salon_services, start=1):
                 src_path = service_images[(idx - 1) % len(service_images)]
-                dst_name = f"services/demo_{salon.id}_{idx}.svg"
+                dst_name = f"demo_{salon.id}_{idx}.svg"
                 if _set_filefield_from_static(filefield=svc.image, dst_name=dst_name, src_path=src_path):
                     created["service_images"] += 1
 
@@ -288,7 +295,7 @@ class Command(BaseCommand):
                 except Master.DoesNotExist:
                     continue
                 src_path = master_images[(idx - 1) % len(master_images)]
-                dst_name = f"masters/demo_{salon.id}_{idx}.svg"
+                dst_name = f"demo_{salon.id}_{idx}.svg"
                 if _set_filefield_from_static(filefield=master.image, dst_name=dst_name, src_path=src_path):
                     created["master_images"] += 1
 
