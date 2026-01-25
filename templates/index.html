@@ -84,13 +84,13 @@
 										<div class="masters__footer_light">&nbsp;</div>
 										<div class="masters__footer_num">&nbsp;</div>
 									</div>
-									<button
-										class="masters__footer_btn"
-										type="button"
-										onclick="window.location.href='{% url 'service' %}'"
-									>
-										Записаться
-									</button>
+										<button
+											class="masters__footer_btn"
+											type="button"
+											onclick="window.location.href='{% url 'service' %}?salon_id={{ master.salon_id }}&master_id={{ master.id }}'"
+										>
+											Записаться
+										</button>
 								</div>
 							</div>
 						</div>

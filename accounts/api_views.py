@@ -122,6 +122,14 @@ class VerifyCodeAPIView(APIView):
         login(request, user)
         request.session.pop("auth_phone_pending", None)
 
+        # Link existing guest appointments (created by phone) to the newly logged-in user.
+        try:
+            from appointments.models import Appointment
+
+            Appointment.objects.filter(user__isnull=True, client_phone=phone_e164).update(user=user)
+        except Exception:
+            pass
+
         return Response(
             data={
                 "ok": True,

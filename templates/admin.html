@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load formatting %}
 {% block content %}
 	{% include 'partials/mob_menu.html' %}
 	{% include 'partials/header.html' %}
@@ -60,32 +61,24 @@
 						<div class="admin__main">
 							<div class="admin__title">Главная</div>
 							<hr class="hr">
-							<div class="admin__main_block">
-								<div class="admin__main_block__items">
-									<div class="admin__main_monthPrise admin__main_block__elem">
-										<div class="admin__main_monthPrise__intro">Сумма оплат за месяц</div>	
-										<div class="admin__main_monthPrise__sum">628 200 рублей</div>
+								<div class="admin__main_block">
+									<div class="admin__main_block__items">
+										<div class="admin__main_monthPrise admin__main_block__elem">
+											<div class="admin__main_monthPrise__intro">Сумма оплат за месяц</div>	
+											<div class="admin__main_monthPrise__sum">{{ paid_sum_month|rub }}</div>
+										</div>
+										<div class="admin__main_block__elem">
+											<div class="admin__main_monthPrise__intro">Посещений за месяц</div>	
+											<div class="admin__main_monthPrise__sum">{{ visits_month }}</div>
+										</div>
 									</div>
-									<div class="admin__main_block__elem">
-										<div class="admin__main_monthPrise__intro">Посещений за месяц</div>	
-										<div class="admin__main_monthPrise__sum">349</div>
-									</div>
-								</div>
-								<div class="admin__main_block__items">
-									<div class="admin__main_block__elem">
-										<div class="admin__main_monthPrise__intro">Посещений за месяц</div>	
-										<div class="admin__main_monthPrise__sum">349</div>
-									</div>
-									<div class="admin__main_block__elem">
-										<div class="admin__main_monthPrise__intro">Процент посещений</div>	
-										<div class="admin__main_monthPrise__circle">100%</div>
-									</div>
-									<div class="admin__main_block__elem">
-										<div class="admin__main_monthPrise__intro">Посещений за год</div>	
-										<div class="admin__main_monthPrise__sum">3 956</div>
+									<div class="admin__main_block__items">
+										<div class="admin__main_block__elem">
+											<div class="admin__main_monthPrise__intro">Посещений за год</div>	
+											<div class="admin__main_monthPrise__sum">{{ visits_year }}</div>
+										</div>
 									</div>
 								</div>
-							</div>
 						</div>
 					</div>
 				</div>

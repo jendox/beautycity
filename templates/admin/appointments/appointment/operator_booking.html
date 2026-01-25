@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/widgets.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% url 'admin:jsi18n' %}"></script>
+  {{ form.media }}
+  <script src="{% static 'admin/js/admin/DateTimeShortcuts.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="errornote">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+      <fieldset class="module aligned">
+        {% for field in form %}
+          <div class="form-row{% if field.errors %} errors{% endif %}">
+            <div>
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field.errors }}
+            </div>
+          </div>
+        {% endfor %}
+      </fieldset>
+      <div class="submit-row">
+        <input type="submit" value="{% translate 'Save' %}" class="default">
+        <a class="button cancel-link" href="{% url 'admin:appointments_appointment_changelist' %}">{% translate 'Cancel' %}</a>
+      </div>
+    </form>
+  </div>
+  <script>
+    (function () {
+      const salonSelect = document.getElementById('id_salon');
+      if (!salonSelect) return;
+      salonSelect.addEventListener('change', function () {
+        const url = new URL(window.location.href);
+        url.searchParams.set('salon', salonSelect.value || '');
+        window.location.href = url.toString();
+      });
+    })();
+  </script>
+{% endblock %}

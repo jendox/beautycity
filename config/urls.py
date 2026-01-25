@@ -7,6 +7,7 @@ from config import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('salons.api_urls')),
+    path('api/', include('appointments.api_urls')),
     path('', include('accounts.urls')),
     path('', include('pages.urls')),
     path('', include('client.urls')),

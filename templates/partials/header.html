@@ -25,18 +25,18 @@
 					<div class="header__block">
 					<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
 
-					{% if user.is_authenticated %}
-					<div class="header">
-						<img src="{% static 'img/avatars/1.svg' %}" alt="account" class="header__account_img">
+						{% if user.is_authenticated %}
+						<a href="{% url 'dashboard' %}" class="header__block_auth header__block_auth--dashboard">
+							<img src="{% static 'img/avatars/1.svg' %}" alt="account" class="header__account_img">
+						</a>
+						{% else %}
+						<div class="header__block_auth" data-action="auth-open">
+							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+							<span class="header__block_auth__intro">Войти</span>
+						</div>
+						{% endif %}
 					</div>
-					{% else %}
-					<div class="header__block_auth">
-						<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-						<span class="header__block_auth__intro">Войти</span>
 					</div>
-					{% endif %}
-				</div>
-				</div>
 			</div>
 		</div>
 	</div>

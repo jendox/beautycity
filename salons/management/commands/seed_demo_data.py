@@ -299,6 +299,40 @@ class Command(BaseCommand):
                 if _set_filefield_from_static(filefield=master.image, dst_name=dst_name, src_path=src_path):
                     created["master_images"] += 1
 
+        # Booking demo data (promo codes + shifts)
+        try:
+            from datetime import time as dtime
+
+            from appointments.models import MasterShift, PromoCode
+        except Exception:
+            MasterShift = None  # type: ignore[assignment]
+            PromoCode = None  # type: ignore[assignment]
+
+        if PromoCode is not None:
+            promo_payload = [
+                ("kid20", 20),
+                ("birthday", 15),
+                ("man10", 10),
+            ]
+            for code, percent in promo_payload:
+                PromoCode.objects.update_or_create(
+                    code=code,
+                    defaults={"discount_percent": percent, "is_active": True, "valid_from": None, "valid_to": None},
+                )
+
+        if MasterShift is not None:
+            work_start = dtime(hour=10, minute=0)
+            work_end = dtime(hour=20, minute=0)
+            weekdays = range(0, 7)
+            for master in Master.objects.filter(is_active=True).select_related("salon"):
+                for wd in weekdays:
+                    MasterShift.objects.update_or_create(
+                        master=master,
+                        salon=master.salon,
+                        weekday=wd,
+                        defaults={"starts_time": work_start, "ends_time": work_end, "is_active": True},
+                    )
+
         self.stdout.write(self.style.SUCCESS(
             "Seed done.\n"
             f"Created salons: {created['salons']}\n"
