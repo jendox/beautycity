@@ -39,14 +39,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=not DEBUG)
 CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=not DEBUG)
 
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
-if (not CSRF_TRUSTED_ORIGINS) and (not DEBUG):
-    CSRF_TRUSTED_ORIGINS = [
-        f"https://{host}"
-        for host in ALLOWED_HOSTS
-        if host and (host != "*") and ("://" not in host)
-    ]
-
 # Application definition
 
 INSTALLED_APPS = [

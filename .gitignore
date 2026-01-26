@@ -290,3 +290,4 @@ pyrightconfig.json
 .idea/
 media/
 DEPLOY.md
+deploy/
